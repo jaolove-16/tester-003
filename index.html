@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>jaoriche - jaolove studio16</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            font-family: 'Kanit', sans-serif;
+            color: #555;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 390px;
+            height: 844px;
+            background-color: #fff;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Header --- */
+        header {
+            padding: 20px;
+            background-color: #fce4ec;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .header-logo-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-logo-group .icon {
+            font-size: 24px;
+            color: #bf8f6b;
+        }
+
+        .header-logo-group .text {
+            font-size: 26px;
+            font-weight: 600;
+            color: #bf8f6b;
+            letter-spacing: -1px;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 8px;
+            background-color: #fff;
+            padding: 3px;
+            border-radius: 20px;
+        }
+
+        .btn-guest, .btn-admin {
+            padding: 5px 14px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            color: #d7ccc8;
+            transition: all 0.2s;
+        }
+
+        .btn-guest.active, .btn-admin.active {
+            background-color: #e59367;
+            color: #fff;
+        }
+
+        /* --- Page Views Management --- */
+        .page-view {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* --- Home Page Specifics --- */
+        .banner-container {
+            width: calc(100% - 40px);
+            margin: 20px auto 0;
+            position: relative;
+        }
+
+        .banner-image {
+            width: 100%;
+            border-radius: 25px;
+            border: 3px dashed #f8bbd0;
+            box-sizing: border-box;
+            display: block;
+        }
+
+        .profile-image-wrapper {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 6px solid #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+            background-color: #fff;
+        }
+
+        .profile-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .store-info {
+            text-align: center;
+            margin-top: 60px;
+            padding: 0 20px 20px;
+        }
+
+        .store-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #795548;
+            margin: 0 0 10px 0;
+        }
+
+        .store-description {
+            font-size: 14px;
+            color: #795548;
+            line-height: 1.6;
+            font-weight: 300;
+            max-width: 90%;
+            margin: 0 auto;
+        }
+
+        .review-header-section {
+            background-color: #e3f2fd;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .review-header-section .icon-speech {
+            width: 20px;
+            height: 20px;
+            background-color: #bf8f6b;
+            border-radius: 5px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .review-header-section .text {
+            font-size: 16px;
+            font-weight: 500;
+            color: #795548;
+        }
+
+        .review-list {
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex-grow: 1;
+        }
+
+        .review-card {
+            background-color: #fff;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .review-card-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reviewer-avatar-wrapper {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .reviewer-avatar-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-initial {
+            width: 100%;
+            height: 100%;
+            background-color: #f8bbd0;
+            color: #795548;
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-transform: uppercase;
+        }
+
+        .reviewer-info-text {
+            flex: 1;
+        }
+
+        .reviewer-handle {
+            font-size: 14px;
+            font-weight: 500;
+            color: #795548;
+            margin: 0;
+        }
+
+        .reviewer-rating {
+            font-size: 14px;
+            color: #fbc02d;
+            margin: 2px 0 0 0;
+        }
+
+        .review-text {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.6;
+            margin: 0;
+            font-weight: 300;
+        }
+
+        .review-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1px dashed #eee;
+        }
+
+        .review-timestamp {
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        .like-btn-container {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            background-color: #fff0f5;
+            padding: 4px 10px;
+            border-radius: 12px;
+            transition: background-color 0.2s;
+            user-select: none;
+        }
+
+        .like-btn-container:hover {
+            background-color: #ffe4e1;
+        }
+
+        .like-icon {
+            font-size: 14px;
+        }
+
+        .like-count {
+            font-size: 12px;
+            color: #e59367;
+            font-weight: 500;
+        }
+
+        .write-review-container {
+            padding: 10px 15px;
+            background-color: #fff;
+            position: relative;
+            margin-top: auto;
+        }
+
+        .btn-write-review {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background-color: #e59367;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(229, 147, 103, 0.4);
+        }
+
+        /* --- Dashboard Page Specifics --- */
+        .dashboard-container {
+            background-color: #e1f5fe;
+            padding: 15px;
+            min-height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .dash-card {
+            background-color: #fff;
+            border-radius: 25px;
+            padding: 15px;
+            border: 2px solid #b3e5fc;
+            box-sizing: border-box;
+        }
+
+        .dash-card-title {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: #8d6e63;
+            margin: 0 0 12px 0;
+        }
+
+        .dash-stats-grid {
+            display: flex;
+            gap: 10px;
+        }
+
+        .stat-box {
+            flex: 1;
+            background-color: #fffde7;
+            border: 1px solid #fff59d;
+            border-radius: 15px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .stat-title {
+            font-size: 11px;
+            color: #a1887f;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 600;
+            color: #d7ccc8;
+        }
+
+        .dash-section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #8d6e63;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0 0 10px 0;
+        }
+
+        .admin-review-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 380px;
+            overflow-y: auto;
+        }
+
+        .admin-review-card {
+            background-color: #fff5f8;
+            border: 1.5px solid #ffcdd2;
+            border-radius: 20px;
+            padding: 12px 15px;
+            position: relative;
+        }
+
+        .admin-review-card-top {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .admin-reviewer-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #8d6e63;
+            margin: 0;
+        }
+
+        .admin-reviewer-stars {
+            color: #ffca28;
+            font-size: 12px;
+        }
+
+        .admin-review-text {
+            font-size: 12px;
+            color: #795548;
+            margin: 0;
+            line-height: 1.4;
+            padding-right: 20px;
+            font-weight: 300;
+        }
+
+        .btn-delete-review {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 22px;
+            height: 22px;
+            background-color: #e59367;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+        }
+              /* --- Setting Page Styles --- */
+        .setting-container {
+            padding: 15px;
+            background-color: #f7f7f7;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .setting-card {
+            background-color: #fff;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
+
+        .setting-card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #795548;
+            margin: 0 0 12px 0;
+            border-bottom: 2px dashed #fce4ec;
+            padding-bottom: 8px;
+        }
+
+        .form-group-setting {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+
+        .setting-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .input-setting, .textarea-setting {
+            width: 100%;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 8px 12px;
+            font-family: 'Kanit', sans-serif;
+            font-size: 12px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .textarea-setting {
+            height: 60px;
+            resize: none;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .input-color {
+            width: 100%;
+            height: 35px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            background: none;
+            padding: 2px;
+        }
+
+        .btn-save-settings {
+            background: linear-gradient(180deg, #e59367 0%, #a6684e 100%);
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(166, 104, 78, 0.3);
+            margin-bottom: 20px;
+        }
+
+        /* --- Footer & Nav --- */
+        footer {
+            background-color: #eaeae7;
+            padding: 12px 10px;
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid #ddd;
+            z-index: 10;
+        }
+
+        .menu-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #bf8f6b;
+            gap: 3px;
+            opacity: 0.6;
+            cursor: pointer;
+        }
+
+        .menu-item.active {
+            opacity: 1;
+            font-weight: 500;
+        }
+
+        .menu-item .icon {
+            font-size: 18px;
+        }
+
+        .menu-item .text {
+            font-size: 11px;
+        }
+
+        /* --- Modal Popups --- */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .modal-card {
+            background-color: #fff;
+            border: 4px solid #fff59d;
+            border-radius: 35px;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 28px;
+            height: 28px;
+            background-color: #e59367;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #795548;
+            margin: 5px 0 2px 0;
+        }
+
+        .modal-subtitle {
+            font-size: 13px;
+            color: #8d6e63;
+            margin-bottom: 10px;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 15px;
+        }
+
+        .star-rating .star {
+            font-size: 32px;
+            color: #e0e0e0;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .star-rating .star.active {
+            color: #ffca28;
+        }
+
+        .form-group {
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #795548;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .input-text, .textarea-text {
+            width: 100%;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 10px 12px;
+            font-family: 'Kanit', sans-serif;
+            font-size: 12px;
+            box-sizing: border-box;
+            outline: none;
+            color: #666;
+        }
+
+        .textarea-text {
+            height: 90px;
+            resize: none;
+        }
+
+        .image-upload-box {
+            width: 90px;
+            height: 90px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            overflow: hidden;
+            background-color: #fafafa;
+            position: relative;
+        }
+
+        .image-upload-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .btn-submit-review {
+            background-color: #a6684e;
+            color: #fff;
+            border: none;
+            padding: 10px 40px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 8px rgba(166, 104, 78, 0.3);
+        }
+
+        .admin-modal-card {
+            background-color: #fff0f5;
+            border: 3px solid #ffb6c1;
+            border-radius: 35px;
+            width: 100%;
+            padding: 25px 20px;
+            box-sizing: border-box;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .admin-close-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 26px;
+            height: 26px;
+            background-color: #e59367;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .admin-paw-icon {
+            font-size: 65px;
+            color: #ffb6c1;
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+
+        .admin-form-group {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .admin-form-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #8b5a2b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .admin-input-text {
+            width: 100%;
+            border: 2px solid #ffb6c1;
+            border-radius: 20px;
+            padding: 10px 15px;
+            font-family: 'Kanit', sans-serif;
+            font-size: 14px;
+            box-sizing: border-box;
+            outline: none;
+            background-color: #fff;
+            color: #555;
+        }
+
+        .btn-admin-login {
+            background: linear-gradient(180deg, #b3e5fc 0%, #81d4fa 100%);
+            color: #fff;
+            border: none;
+            padding: 10px 45px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(129, 212, 250, 0.4);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        /* --- Delete Confirm Modal --- */
+        .delete-confirm-card {
+            background-color: #fff5f8;
+            border: 3px solid #ffccd5;
+            border-radius: 35px;
+            width: 90%;
+            padding: 25px 20px;
+            box-sizing: border-box;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .delete-close-btn {
+            position: absolute;
+            top: -12px;
+            right: -12px;
+            width: 32px;
+            height: 32px;
+            background-color: #e59367;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .delete-title-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .delete-title-icon {
+            font-size: 24px;
+            color: #bf8f6b;
+        }
+
+        .delete-title-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #a6684e;
+        }
+
+        .delete-input-pass {
+            width: 100%;
+            border: 2px solid #ffccd5;
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-family: 'Kanit', sans-serif;
+            font-size: 16px;
+            text-align: center;
+            box-sizing: border-box;
+            outline: none;
+            background-color: #fff;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .btn-confirm-delete {
+            background: linear-gradient(180deg, #b3e5fc 0%, #81d4fa 100%);
+            color: #fff;
+            border: none;
+            padding: 10px 45px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(129, 212, 250, 0.4);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+    </style>
+    </head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="header-logo-group">
+                <span class="icon">🐾</span>
+                <span class="text">jaoriche</span>
+            </div>
+            <div class="header-buttons">
+                <button class="btn-guest active" id="btn-guest-toggle">Guest</button>
+                <button class="btn-admin" id="btn-admin-toggle">Admin</button>
+            </div>
+        </header>
+
+        <!-- View 1: Home Page -->
+        <div class="page-view" id="view-home">
+            <div class="banner-container">
+                <img src="https://via.placeholder.com/350x200/FCE4EC/999?text=Banner" alt="แบนเนอร์" class="banner-image">
+                <div class="profile-image-wrapper">
+                    <img src="https://via.placeholder.com/100x100/D7CCC8/999?text=Profile" alt="รูปโปรไฟล์">
+                </div>
+            </div>
+
+            <div class="store-info">
+                <h1 class="store-title">jaolove studio16</h1>
+                <p class="store-description">เว็บสำหรับเก็บเครดิตของร้านเจ้าเลิฟสตูดิโอสิบหก<br>เนื่องจากเค้ามีปัญหาในการเก็บเครดิตใน facebook<br>เลยขอมาเก็บในเว็บนี้แทนนะคะเพื่อความสะดวกในการเก็บงับ</p>
+            </div>
+
+            <div class="review-header-section">
+                <span class="icon-speech"></span>
+                <span class="text">รีวิวจากลูกค้าที่น่ารัก</span>
+            </div>
+
+            <div class="review-list" id="review-list">
+                <p style="text-align: center; color: #999;">กำลังโหลดรีวิว...</p>
+            </div>
+
+            <div class="write-review-container">
+                <button class="btn-write-review" id="btn-open-modal">
+                    ✏️ เขียนรีวิว
+                </button>
+            </div>
+        </div>
+
+        <!-- View 2: Dashboard Page -->
+        <div class="page-view" id="view-dashboard" style="display: none;">
+            <div class="dashboard-container">
+                <div class="dash-card">
+                    <h2 class="dash-card-title">สรุปรีวิวและคะแนนเฉลี่ยทั้งหมด</h2>
+                    <div class="dash-stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-title">รีวิวทั้งหมด</div>
+                            <div class="stat-value" id="stat-total-reviews">0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-title">คะแนนเฉลี่ย</div>
+                            <div class="stat-value" id="stat-avg-rating">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dash-card" style="flex: 1; display: flex; flex-direction: column;">
+                    <div class="dash-section-title">
+                        <span>🐾</span> รีวิวที่รอการตรวจสอบ
+                    </div>
+                    <div class="admin-review-list" id="admin-review-list">
+                        <p style="text-align: center; color: #999; font-size: 12px;">ไม่มีรีวิวให้ตรวจสอบ</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View 3: Setting Page (ระบบตั้งค่าหลังบ้าน) -->
+        <div class="page-view" id="view-setting" style="display: none;">
+            <div class="setting-container">
+                
+                <!-- Section 1: ข้อมูลร้านและรูปภาพ -->
+                <div class="setting-card">
+                    <h3 class="setting-card-title">⚙️ ตั้งค่าข้อมูลร้านและรูปภาพ</h3>
+                    
+                    <div class="form-group-setting">
+                        <label class="setting-label">🐾 ชื่อโลโก้ Header</label>
+                        <input type="text" id="set-header-title" class="input-setting" placeholder="เช่น jaoriche">
+                    </div>
+
+                    <div class="form-group-setting">
+                        <label class="setting-label">🖼️ ลิงก์รูปแบนเนอร์ (Google Drive/URL)</label>
+                        <input type="text" id="set-banner-url" class="input-setting" placeholder="วางลิงก์รูปแบนเนอร์ตรงนี้">
+                    </div>
+
+                    <div class="form-group-setting">
+                        <label class="setting-label">🖼️ ลิงก์รูปโปรไฟล์ (Google Drive/URL)</label>
+                        <input type="text" id="set-profile-url" class="input-setting" placeholder="วางลิงก์รูปโปรไฟล์ตรงนี้">
+                    </div>
+
+                    <div class="form-group-setting">
+                        <label class="setting-label">🏠 ชื่อร้าน</label>
+                        <input type="text" id="set-store-title" class="input-setting" placeholder="เช่น jaolove studio16">
+                    </div>
+
+                    <div class="form-group-setting">
+                        <label class="setting-label">📝 รายละเอียดใต้ชื่อร้าน</label>
+                        <textarea id="set-store-desc" class="textarea-setting" placeholder="พิมพ์รายละเอียดร้านค้า..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Section 2: ปรับแต่งโทนสี (HEX / Color Code) -->
+                <div class="setting-card">
+                    <h3 class="setting-card-title">🎨 ปรับแต่งโทนสีระบบ</h3>
+                    
+                    <div class="color-grid">
+                        <div class="form-group-setting">
+                            <label class="setting-label">สีพื้นหลังแอพ (Body)</label>
+                            <input type="color" id="set-bg-app" class="input-color">
+                        </div>
+
+                        <div class="form-group-setting">
+                            <label class="setting-label">สีพื้นหลัง Header</label>
+                            <input type="color" id="set-bg-header" class="input-color">
+                        </div>
+
+                        <div class="form-group-setting">
+                            <label class="setting-label">สีโลโก้ & ไอคอน Header</label>
+                            <input type="color" id="set-header-color" class="input-color">
+                        </div>
+
+                        <div class="form-group-setting">
+                            <label class="setting-label">สีปุ่ม Toggle Active</label>
+                            <input type="color" id="set-btn-active" class="input-color">
+                        </div>
+
+                        <div class="form-group-setting">
+                            <label class="setting-label">สีตัวหนังสือปุ่ม Inactive</label>
+                            <input type="color" id="set-btn-inactive" class="input-color">
+                        </div>
+
+                        <div class="form-group-setting">
+                            <label class="setting-label">สีเส้นขอบรูปแบนเนอร์</label>
+                            <input type="color" id="set-banner-border" class="input-color">
+                        </div>
+
+                        <div class="form-group-setting">
+                            <label class="setting-label">สีข้อความชื่อร้าน</label>
+                            <input type="color" id="set-store-title-color" class="input-color">
+                        </div>
+
+                        <div class="form-group-setting">
+                            <label class="setting-label">สีข้อความรายละเอียด</label>
+                            <input type="color" id="set-store-desc-color" class="input-color">
+                        </div>
+
+                        <div class="form-group-setting">
+                            <label class="setting-label">สีพื้นหลังแถบรีวิว</label>
+                            <input type="color" id="set-review-header-bg" class="input-color">
+                        </div>
+
+                        <div class="form-group-setting">
+                            <label class="setting-label">สีการ์ดรีวิว</label>
+                            <input type="color" id="set-card-bg" class="input-color">
+                        </div>
+
+                        <div class="form-group-setting">
+                            <label class="setting-label">สีเส้นขอบการ์ดรีวิว</label>
+                            <input type="color" id="set-card-border" class="input-color">
+                        </div>
+
+                        <div class="form-group-setting">
+                            <label class="setting-label">สีปุ่มเขียนรีวิว</label>
+                            <input type="color" id="set-btn-review-bg" class="input-color">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-save-settings" id="btn-save-settings">💾 บันทึกการตั้งค่า</button>
+            </div>
+        </div>
+
+        <footer>
+            <div class="menu-item active" id="menu-home">
+                <span class="icon">🏠</span>
+                <span class="text">Home</span>
+            </div>
+            <div class="menu-item" id="menu-dashboard" style="display: none;">
+                <span class="icon">🐾</span>
+                <span class="text">Dashboard</span>
+            </div>
+            <div class="menu-item" id="menu-setting" style="display: none;">
+                <span class="icon">⚙️</span>
+                <span class="text">Setting</span>
+            </div>
+        </footer>
+
+        <!-- Modal สำหรับเขียนรีวิว -->
+        <div class="modal-overlay" id="review-modal">
+            <div class="modal-card">
+                <div class="close-btn" id="btn-close-modal">✕</div>
+                <div class="modal-title">รีวิวความพึงพอใจ</div>
+                <div class="modal-subtitle">เลือกลัดคะแนนจาก 1 ถึง 5</div>
+                
+                <div class="star-rating" id="star-rating">
+                    <span class="star active" data-value="1">★</span>
+                    <span class="star active" data-value="2">★</span>
+                    <span class="star active" data-value="3">★</span>
+                    <span class="star active" data-value="4">★</span>
+                    <span class="star active" data-value="5">★</span>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-label">🐾 ชื่อลูกค้าที่น่ารัก (ใช้นามแฝงได้)</div>
+                    <input type="text" class="input-text" id="input-name" placeholder="พิมพ์ชื่อช่องทางติดต่อ หรือ นามแฝงตรงนี้">
+                </div>
+
+                <div class="form-group">
+                    <div class="form-label">🐾 เขียนรีวิวแสดงความรู้สึกที่มีต่อร้าน</div>
+                    <textarea class="textarea-text" id="input-comment" placeholder="เขียนรีวิวความพึงพอใจแบบสั้นๆตรงนี้..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-label">🐾 รูปโปรไฟล์คนน่ารัก</div>
+                    <div class="image-upload-box" id="upload-box">
+                        <span id="camera-icon" style="font-size: 30px; color: #ccc;">📷</span>
+                        <img id="preview-img" src="" style="display: none;">
+                    </div>
+                    <input type="file" id="file-input" accept="image/*" style="display: none;">
+                </div>
+
+                <button class="btn-submit-review" id="btn-submit">ส่งรีวิว</button>
+            </div>
+        </div>
+
+        <!-- Modal สำหรับ Admin Login -->
+        <div class="modal-overlay" id="admin-login-modal">
+            <div class="admin-modal-card">
+                <div class="admin-close-btn" id="btn-close-admin-modal">✕</div>
+                <div class="admin-paw-icon">🐾</div>
+                
+                <div class="admin-form-group">
+                    <div class="admin-form-label">🐾 Admin User</div>
+                    <input type="text" class="admin-input-text" id="admin-user-input">
+                </div>
+
+                <div class="admin-form-group">
+                    <div class="admin-form-label">🐾 Password</div>
+                    <input type="password" class="admin-input-text" id="admin-pass-input">
+                </div>
+
+                <button class="btn-admin-login" id="btn-admin-login-submit">Login</button>
+            </div>
+        </div>
+
+        <!-- Modal สำหรับยืนยันการลบรีวิว (Delete Confirmation) -->
+        <div class="modal-overlay" id="delete-confirm-modal">
+            <div class="delete-confirm-card">
+                <div class="delete-close-btn" id="btn-close-delete-modal">✕</div>
+                <div class="delete-title-group">
+                    <span class="delete-title-icon">🐾</span>
+                    <span class="delete-title-text">ใส่รหัสเพื่อยืนยันการลบ</span>
+                </div>
+                <input type="password" class="delete-input-pass" id="delete-pass-input">
+                <button class="btn-confirm-delete" id="btn-confirm-delete-submit">Delete</button>
+            </div>
+        </div>
+    </div>
+        <script>
+        // ตั้งค่า Firebase
+        const firebaseConfig = {
+            databaseURL: "https://test-yiyi16-default-rtdb.firebaseio.com/"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const reviewsRef = database.ref('reviews');
+        const settingsRef = database.ref('settings');
+
+        // Elements
+        const modal = document.getElementById('review-modal');
+        const btnOpenModal = document.getElementById('btn-open-modal');
+        const btnCloseModal = document.getElementById('btn-close-modal');
+        const reviewListContainer = document.getElementById('review-list');
+        const adminReviewListContainer = document.getElementById('admin-review-list');
+        
+        // Admin & Nav Elements
+        const btnGuestToggle = document.getElementById('btn-guest-toggle');
+        const btnAdminToggle = document.getElementById('btn-admin-toggle');
+        const adminLoginModal = document.getElementById('admin-login-modal');
+        const btnCloseAdminModal = document.getElementById('btn-close-admin-modal');
+        const btnAdminLoginSubmit = document.getElementById('btn-admin-login-submit');
+
+        // Delete Modal Elements
+        const deleteConfirmModal = document.getElementById('delete-confirm-modal');
+        const btnCloseDeleteModal = document.getElementById('btn-close-delete-modal');
+        const deletePassInput = document.getElementById('delete-pass-input');
+        const btnConfirmDeleteSubmit = document.getElementById('btn-confirm-delete-submit');
+        let selectedReviewIdToDelete = null;
+
+        const menuHome = document.getElementById('menu-home');
+        const menuDashboard = document.getElementById('menu-dashboard');
+        const menuSetting = document.getElementById('menu-setting');
+
+        const viewHome = document.getElementById('view-home');
+        const viewDashboard = document.getElementById('view-dashboard');
+        const viewSetting = document.getElementById('view-setting');
+
+        const statTotalReviews = document.getElementById('stat-total-reviews');
+        const statAvgRating = document.getElementById('stat-avg-rating');
+
+        let isAdmin = false;
+
+        // สลับแท็บระบบ
+        function switchTab(tabName) {
+            viewHome.style.display = 'none';
+            viewDashboard.style.display = 'none';
+            viewSetting.style.display = 'none';
+
+            menuHome.classList.remove('active');
+            menuDashboard.classList.remove('active');
+            menuSetting.classList.remove('active');
+
+            if (tabName === 'home') {
+                viewHome.style.display = 'flex';
+                menuHome.classList.add('active');
+            } else if (tabName === 'dashboard') {
+                viewDashboard.style.display = 'flex';
+                menuDashboard.classList.add('active');
+            } else if (tabName === 'setting') {
+                viewSetting.style.display = 'flex';
+                menuSetting.classList.add('active');
+            }
+        }
+
+        menuHome.onclick = () => switchTab('home');
+        menuDashboard.onclick = () => switchTab('dashboard');
+        menuSetting.onclick = () => switchTab('setting');
+
+        // การสลับสิทธิ์ Admin / Guest
+        btnAdminToggle.onclick = () => {
+            if (!isAdmin) {
+                adminLoginModal.style.display = 'flex';
+            }
+        };
+
+        btnGuestToggle.onclick = () => {
+            isAdmin = false;
+            btnGuestToggle.classList.add('active');
+            btnAdminToggle.classList.remove('active');
+            menuDashboard.style.display = 'none';
+            menuSetting.style.display = 'none';
+            switchTab('home');
+        };
+
+        btnCloseAdminModal.onclick = () => {
+            adminLoginModal.style.display = 'none';
+        };
+
+        // เข้าสู่ระบบ Admin
+        btnAdminLoginSubmit.onclick = () => {
+            const userInput = document.getElementById('admin-user-input').value.trim();
+            const passInput = document.getElementById('admin-pass-input').value.trim();
+
+            if (userInput === '_1602.wst' && passInput === '160243') {
+                isAdmin = true;
+                btnAdminToggle.classList.add('active');
+                btnGuestToggle.classList.remove('active');
+                menuDashboard.style.display = 'flex';
+                menuSetting.style.display = 'flex';
+                
+                document.getElementById('admin-user-input').value = '';
+                document.getElementById('admin-pass-input').value = '';
+                adminLoginModal.style.display = 'none';
+                
+                switchTab('dashboard');
+            } else {
+                alert('Admin User หรือ Password ไม่ถูกต้องครับ');
+            }
+        };
+
+        // เลือกรating ดาว
+        const stars = document.querySelectorAll('.star');
+        let selectedRating = 5;
+        let base64Avatar = '';
+
+        btnOpenModal.onclick = () => modal.style.display = 'flex';
+        btnCloseModal.onclick = () => modal.style.display = 'none';
+
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.getAttribute('data-value'));
+                stars.forEach(s => {
+                    if (parseInt(s.getAttribute('data-value')) <= selectedRating) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // อัปโหลดรูปภาพ
+        const uploadBox = document.getElementById('upload-box');
+        const fileInput = document.getElementById('file-input');
+        const previewImg = document.getElementById('preview-img');
+        const cameraIcon = document.getElementById('camera-icon');
+
+        uploadBox.onclick = () => fileInput.click();
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    base64Avatar = event.target.result;
+                    previewImg.src = base64Avatar;
+                    previewImg.style.display = 'block';
+                    cameraIcon.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // ส่งข้อมูลไปยัง Firebase
+        document.getElementById('btn-submit').onclick = () => {
+            const username = document.getElementById('input-name').value.trim();
+            const comment = document.getElementById('input-comment').value.trim();
+
+            if (!username || !comment) {
+                alert('กรุณากรอกชื่อและข้อความรีวิวให้ครบถ้วนนะครับ');
+                return;
+            }
+
+            reviewsRef.push({
+                username: username.startsWith('@') ? username : '@' + username,
+                comment: comment,
+                rating: selectedRating,
+                avatar: base64Avatar || '',
+                likes: 0,
+                timestamp: Date.now()
+            }).then(() => {
+                document.getElementById('input-name').value = '';
+                document.getElementById('input-comment').value = '';
+                base64Avatar = '';
+                previewImg.style.display = 'none';
+                cameraIcon.style.display = 'block';
+                modal.style.display = 'none';
+            });
+        };
+
+        // เปิด Modal ยืนยันการลบ
+        function openDeleteModal(reviewId) {
+            selectedReviewIdToDelete = reviewId;
+            deletePassInput.value = '';
+            deleteConfirmModal.style.display = 'flex';
+        }
+
+        // ปิด Modal ยืนยันการลบ
+        btnCloseDeleteModal.onclick = () => {
+            deleteConfirmModal.style.display = 'none';
+            selectedReviewIdToDelete = null;
+        };
+
+        // ยืนยันการลบรีวิวด้วยรหัสผ่าน
+        btnConfirmDeleteSubmit.onclick = () => {
+            const enteredPass = deletePassInput.value.trim();
+            if (enteredPass === '160243') {
+                if (selectedReviewIdToDelete) {
+                    database.ref(`reviews/${selectedReviewIdToDelete}`).remove().then(() => {
+                        deleteConfirmModal.style.display = 'none';
+                        selectedReviewIdToDelete = null;
+                    });
+                }
+            } else {
+                alert('รหัสผ่านยืนยันไม่ถูกต้องครับ');
+            }
+        };
+
+        // ฟังก์ชันกดหัวใจ
+        function likeReview(reviewId) {
+            const reviewLikeRef = database.ref(`reviews/${reviewId}/likes`);
+            reviewLikeRef.transaction((currentLikes) => {
+                return (currentLikes || 0) + 1;
+            });
+        }
+
+        // ดึงข้อมูล Realtime และคำนวณ Dashboard
+        reviewsRef.on('value', (snapshot) => {
+            reviewListContainer.innerHTML = '';
+            adminReviewListContainer.innerHTML = '';
+            const data = snapshot.val();
+
+            if (data) {
+                const reviewArray = Object.keys(data).map(key => ({
+                    id: key,
+                    ...data[key]
+                })).reverse();
+
+                // 1. คำนวณสรุปสำหรับ Dashboard
+                const totalCount = reviewArray.length;
+                const totalRatingSum = reviewArray.reduce((acc, curr) => acc + (curr.rating || 5), 0);
+                const avgRating = totalCount > 0 ? (totalRatingSum / totalCount).toFixed(1) : '0';
+
+                statTotalReviews.innerText = totalCount;
+                statAvgRating.innerText = avgRating;
+
+                // 2. แสดงรายการในหน้า Home และ Dashboard
+                reviewArray.forEach(review => {
+                    const starsStr = '⭐'.repeat(review.rating || 5);
+                    
+                    // HTML หน้า Home
+                    let avatarHTML = '';
+                    if (review.avatar) {
+                        avatarHTML = `<img src="${review.avatar}" alt="อวตารผู้รีวิว">`;
+                    } else {
+                        const rawName = review.username.replace(/^@/, '');
+                        const firstChar = rawName ? rawName.charAt(0).toUpperCase() : '?';
+                        avatarHTML = `<div class="avatar-initial">${firstChar}</div>`;
+                    }
+
+                    const dateObj = new Date(review.timestamp || Date.now());
+                    const formattedDate = dateObj.toLocaleDateString('th-TH', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    }) + ' ' + dateObj.toLocaleTimeString('th-TH', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    const likesCount = review.likes || 0;
+
+                    const homeCardHTML = `
+                        <div class="review-card">
+                            <div class="review-card-top">
+                                <div class="reviewer-avatar-wrapper">${avatarHTML}</div>
+                                <div class="reviewer-info-text">
+                                    <p class="reviewer-handle">${review.username}</p>
+                                    <p class="reviewer-rating">${starsStr}</p>
+                                </div>
+                            </div>
+                            <p class="review-text">${review.comment}</p>
+                            <div class="review-card-footer">
+                                <span class="review-timestamp">${formattedDate}</span>
+                                <div class="like-btn-container" onclick="likeReview('${review.id}')">
+                                    <span class="like-icon">❤️</span>
+                                    <span class="like-count">${likesCount}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    reviewListContainer.insertAdjacentHTML('beforeend', homeCardHTML);
+
+                    // HTML หน้า Dashboard Admin
+                    const adminCardHTML = `
+                        <div class="admin-review-card">
+                            <div class="btn-delete-review" onclick="openDeleteModal('${review.id}')">✕</div>
+                            <div class="admin-review-card-top">
+                                <span class="admin-reviewer-name">${review.username}</span>
+                                <span class="admin-reviewer-stars">${starsStr}</span>
+                            </div>
+                            <p class="admin-review-text">${review.comment}</p>
+                        </div>
+                    `;
+                    adminReviewListContainer.insertAdjacentHTML('beforeend', adminCardHTML);
+                });
+            } else {
+                statTotalReviews.innerText = '0';
+                statAvgRating.innerText = '0';
+                reviewListContainer.innerHTML = '<p style="text-align: center; color: #999;">ยังไม่มีรีวิวในขณะนี้</p>';
+                adminReviewListContainer.innerHTML = '<p style="text-align: center; color: #999; font-size: 12px;">ไม่มีรีวิวให้ตรวจสอบ</p>';
+            }
+        });
+
+        // --- Setting Logic ---
+        function formatDriveUrl(url) {
+            if (!url) return '';
+            if (url.includes('drive.google.com')) {
+                const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w1000`;
+                }
+            }
+            return url;
+        }
+
+        document.getElementById('btn-save-settings').onclick = () => {
+            const newSettings = {
+                headerTitle: document.getElementById('set-header-title').value,
+                bannerUrl: document.getElementById('set-banner-url').value,
+                profileUrl: document.getElementById('set-profile-url').value,
+                storeTitle: document.getElementById('set-store-title').value,
+                storeDesc: document.getElementById('set-store-desc').value,
+                colors: {
+                    bgApp: document.getElementById('set-bg-app').value,
+                    bgHeader: document.getElementById('set-bg-header').value,
+                    headerColor: document.getElementById('set-header-color').value,
+                    btnActive: document.getElementById('set-btn-active').value,
+                    btnInactive: document.getElementById('set-btn-inactive').value,
+                    bannerBorder: document.getElementById('set-banner-border').value,
+                    storeTitleColor: document.getElementById('set-store-title-color').value,
+                    storeDescColor: document.getElementById('set-store-desc-color').value,
+                    reviewHeaderBg: document.getElementById('set-review-header-bg').value,
+                    cardBg: document.getElementById('set-card-bg').value,
+                    cardBorder: document.getElementById('set-card-border').value,
+                    btnReviewBg: document.getElementById('set-btn-review-bg').value
+                }
+            };
+
+            settingsRef.set(newSettings).then(() => {
+                alert('บันทึกการตั้งค่าเรียบร้อยแล้ว!');
+            }).catch((error) => {
+                alert('เกิดข้อผิดพลาดในการบันทึก: ' + error.message);
+            });
+        };
+
+        settingsRef.on('value', (snapshot) => {
+            const config = snapshot.val();
+            if (!config) return;
+
+            if (config.headerTitle) {
+                document.querySelector('.header-logo-group .text').innerText = config.headerTitle;
+                document.getElementById('set-header-title').value = config.headerTitle;
+            }
+            if (config.bannerUrl) {
+                document.querySelector('.banner-image').src = formatDriveUrl(config.bannerUrl);
+                document.getElementById('set-banner-url').value = config.bannerUrl;
+            }
+            if (config.profileUrl) {
+                document.querySelector('.profile-image-wrapper img').src = formatDriveUrl(config.profileUrl);
+                document.getElementById('set-profile-url').value = config.profileUrl;
+            }
+            if (config.storeTitle) {
+                document.querySelector('.store-title').innerText = config.storeTitle;
+                document.getElementById('set-store-title').value = config.storeTitle;
+            }
+            if (config.storeDesc) {
+                document.querySelector('.store-description').innerHTML = config.storeDesc.replace(/\n/g, '<br>');
+                document.getElementById('set-store-desc').value = config.storeDesc;
+            }
+
+            if (config.colors) {
+                const c = config.colors;
+
+                if (c.bgApp) {
+                    document.body.style.backgroundColor = c.bgApp;
+                    document.getElementById('set-bg-app').value = c.bgApp;
+                }
+                if (c.bgHeader) {
+                    document.querySelector('header').style.backgroundColor = c.bgHeader;
+                    document.getElementById('set-bg-header').value = c.bgHeader;
+                }
+                if (c.headerColor) {
+                    document.querySelector('.header-logo-group .icon').style.color = c.headerColor;
+                    document.querySelector('.header-logo-group .text').style.color = c.headerColor;
+                    document.getElementById('set-header-color').value = c.headerColor;
+                }
+                if (c.bannerBorder) {
+                    document.querySelector('.banner-image').style.borderColor = c.bannerBorder;
+                    document.getElementById('set-banner-border').value = c.bannerBorder;
+                }
+                if (c.storeTitleColor) {
+                    document.querySelector('.store-title').style.color = c.storeTitleColor;
+                    document.getElementById('set-store-title-color').value = c.storeTitleColor;
+                }
+                if (c.storeDescColor) {
+                    document.querySelector('.store-description').style.color = c.storeDescColor;
+                    document.getElementById('set-store-desc-color').value = c.storeDescColor;
+                }
+                if (c.reviewHeaderBg) {
+                    document.querySelector('.review-header-section').style.backgroundColor = c.reviewHeaderBg;
+                    document.getElementById('set-review-header-bg').value = c.reviewHeaderBg;
+                }
+                if (c.btnReviewBg) {
+                    document.querySelector('.btn-write-review').style.backgroundColor = c.btnReviewBg;
+                    document.getElementById('set-btn-review-bg').value = c.btnReviewBg;
+                }
+
+                if (c.btnActive) document.getElementById('set-btn-active').value = c.btnActive;
+                if (c.btnInactive) document.getElementById('set-btn-inactive').value = c.btnInactive;
+                if (c.cardBg) document.getElementById('set-card-bg').value = c.cardBg;
+                if (c.cardBorder) document.getElementById('set-card-border').value = c.cardBorder;
+            }
+        });
+    </script>
+</body>
+</html>
